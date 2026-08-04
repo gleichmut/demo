@@ -24,4 +24,9 @@ public class GlobalExceptionHandler {
                                                                                          которое было выброшено со всеми параметрами */
         return ResponseEntity.status(HttpStatus.FOUND).body("Ошибка категории: " + categoryExistsException.getMessage());
     }
+
+    @ExceptionHandler(ProductExists.class)
+    public ResponseEntity<String> handleProductExists(ProductExists productExistsException) {
+        return ResponseEntity.status(HttpStatus.FOUND).body("Ошибка продукта: " + productExistsException.getMessage());
+    }
 }

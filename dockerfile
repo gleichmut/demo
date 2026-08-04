@@ -1,4 +1,5 @@
-FROM eclipse-temurin:21-jre-alpine
+# FROM eclipse-temurin:21-jre-alpine
+FROM bellsoft/liberica-openjdk-alpine:26
 
 WORKDIR /app
 

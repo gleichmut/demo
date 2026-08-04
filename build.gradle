@@ -9,27 +9,17 @@ version = '0.0.1-SNAPSHOT'
 
 java {
 	toolchain {
-		languageVersion = JavaLanguageVersion.of(25)
+		languageVersion = JavaLanguageVersion.of(26)
 	}
 }
 
 repositories {
-    maven {
-        url "https://repo.maven.apache.org/maven2"
-    }
-    maven {
-        url "https://mirrors.cloud.tencent.com/nexus/repository/maven-public/"
-    }
     mavenCentral()
 }
 
-//repositories {
-//	mavenCentral()
-//}
-
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+//	implementation 'org.springframework.boot:spring-boot-starter-webmvc'
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.3'
     implementation 'org.springframework.boot:spring-boot-starter-kafka'
     testImplementation 'org.springframework.boot:spring-boot-starter-kafka-test'
@@ -38,6 +28,7 @@ dependencies {
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
 	testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
 	testCompileOnly 'org.projectlombok:lombok'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	testAnnotationProcessor 'org.projectlombok:lombok'

@@ -9,6 +9,6 @@ import org.springframework.context.annotation.Configuration;
 public class OpenApiConfig {
     @Bean
     public OpenAPI application() {
-        return new OpenAPI().info(new Info().title("CategoryAPI").description("Учебный REST проект по категориям"));
+        return new OpenAPI().info(new Info().title("CategoryAPI").description("Учебный REST проект по категориям и продуктами"));
     }
 }
