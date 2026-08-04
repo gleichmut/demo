@@ -6,7 +6,7 @@ import lombok.Getter;
 // передать один параметр, а не все параметры
 @Getter
 public class CategoryCreateRequest {
-    @Schema(name = "Название категории", example = "Кошки")
+    @Schema(name = "name", example = "Кошки")
     private String name;
 
     public CategoryCreateRequest(String name) {

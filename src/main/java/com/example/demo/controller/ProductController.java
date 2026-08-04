@@ -1,10 +1,7 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.CategoryCreateRequest;
-import com.example.demo.dto.CategoryResponse;
 import com.example.demo.dto.ProductCreateRequest;
 import com.example.demo.dto.ProductResponse;
-import com.example.demo.entity.Category;
 import com.example.demo.entity.Product;
 import com.example.demo.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,7 +23,7 @@ public class ProductController {
     }
 
     @PostMapping("/createProduct")
-    @Operation(summary = "Создать продукт", description = "Возвращает список всех продуктов")
+    @Operation(summary = "Создать продукт", description = "Создание нового продукта")
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200",
@@ -60,11 +57,13 @@ public class ProductController {
     }
 
     @GetMapping("/getAllProducts")
+    @Operation(summary = "Получить все продукты", description = "Возвращает список всех продуктов")
     public List<Product> getAllProducts() {
         return productService.getAllProducts();
     }
 
     @PutMapping("/updateProduct/{id}")
+    @Operation(summary = "Обновить продукт", description = "Обновляет продукт по id")
     public ProductResponse updateCategory(
             @PathVariable Long id,
             @RequestBody ProductCreateRequest request) {
@@ -72,6 +71,7 @@ public class ProductController {
     }
 
     @DeleteMapping("/deleteProduct/{id}")
+    @Operation(summary = "Удалить продукт", description = "Удаляет продукт по id")
     public String deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
         return "Продукт с id " + id + " успешно удален";

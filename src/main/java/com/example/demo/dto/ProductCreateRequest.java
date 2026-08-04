@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 public class ProductCreateRequest {
-    @Schema(name = "Название продукта", example = "Кошечка черная")
+    @Schema(name = "title", example = "Кошечка черная")
     private String title;
 
     public ProductCreateRequest(String title) {
