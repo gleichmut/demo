@@ -10,10 +10,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+// model - repository (бд) - service (валидация, обработка, методы из репозитория)
+// - controller (get data, queries - в сервис - в репозиторий - а он к моделям)
 
 @RestController
 @RequestMapping("/api/category")
-@Tag(name = "CategoryController", description = "Контроллер категории")
+@Tag(name = "CategoryController", description = "Контроллер категории.")
 public class CategoryController {
     private final CategoryService categoryService;
 
@@ -22,25 +24,20 @@ public class CategoryController {
     }
 
     @PostMapping("/createCategory")
-    @Operation(summary = "Создать категорию", description = "Создание новой категории")
-    @ApiResponse(responseCode = "200", description = "Успешно создана категория")
+    @Operation(summary = "Создать категорию", description = "Создание новой категории.")
+//    @ApiResponse(responseCode = "200", description = "Успешно создана категория.")
     public CategoryResponse createCategory(@RequestBody CategoryCreateRequest request) {
         return categoryService.createCategory(request);
     }
 
     @GetMapping("/getAllCategories")
-    @Operation(summary = "Получить все категории", description = "Возвращает список всех категорий")
-    public List<Category> getAllCategories() {
-        return categoryService.getAllCategories();
-    }
-
-    @GetMapping("/test")
-    public String test() {
-        return "TEST";
+    @Operation(summary = "Получить все категории", description = "Возвращает список всех категорий.")
+    public List<Category> findAllCategories() {
+        return categoryService.findAllCategories();
     }
 
     @PutMapping("/updateCategory/{id}")
-    @Operation(summary = "Обновить категорию", description = "Обновляет категорию по id")
+    @Operation(summary = "Обновить категорию", description = "Обновляет категорию по переданному id.")
     public CategoryResponse updateCategory(
             @PathVariable Long id,
             @RequestBody CategoryCreateRequest request) {
@@ -48,12 +45,15 @@ public class CategoryController {
     }
 
     @DeleteMapping("/deleteCategory/{id}")
-    @Operation(summary = "Удалить категорию", description = "Удаляет категорию по id")
+    @Operation(summary = "Удалить категорию", description = "Удаляет категорию по переданному id.")
     public String deleteCategory(@PathVariable Long id) {
         categoryService.deleteCategory(id);
-        return "Категория с id " + id + " успешно удалена";
+        return "Категория с id " + id + " успешно удалена.";
+    }
+
+    @GetMapping("/findProductById/{id}")
+    @Operation(summary = "Получить категорию по id", description = "Получает категорию по переданному id.")
+    public CategoryResponse findCategoryById(@PathVariable Long id) {
+        return categoryService.findCategoryById(id);
     }
 }
-
-
-// model - repository (бд) - service (валидация, обработка, методы из репозитория) - controller (get data, queries - в сервис - в репозиторий - а он к моделям)
