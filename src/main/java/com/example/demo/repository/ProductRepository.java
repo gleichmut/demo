@@ -4,8 +4,9 @@ import com.example.demo.entity.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
-
-    boolean existsByTitle(String title);
+    Optional<Product> findByTitle(String title);
 }
