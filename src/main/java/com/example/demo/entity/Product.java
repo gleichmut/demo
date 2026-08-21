@@ -20,6 +20,4 @@ public class Product {
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;
-
-    // добавить продукт, привязать к категориям разным (create)
 }
