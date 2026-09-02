@@ -2,10 +2,8 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.CategoryCreateRequest;
 import com.example.demo.dto.CategoryResponse;
-import com.example.demo.entity.Category;
 import com.example.demo.service.CategoryService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,7 +30,7 @@ public class CategoryController {
 
     @GetMapping("/getAllCategories")
     @Operation(summary = "Получить все категории", description = "Возвращает список всех категорий.")
-    public List<Category> findAllCategories() {
+    public List<CategoryResponse> findAllCategories() {
         return categoryService.findAllCategories();
     }
 
