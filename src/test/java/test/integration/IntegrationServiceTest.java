@@ -4,6 +4,7 @@ import com.example.demo.DemoApplication;
 import com.example.demo.dto.ProductCreateRequest;
 import com.example.demo.dto.ProductResponse;
 import com.example.demo.entity.Category;
+import com.example.demo.exceptions.ProductNotFound;
 import com.example.demo.repository.CategoryRepository;
 import com.example.demo.repository.ProductRepository;
 import com.example.demo.service.ProductService;
@@ -16,8 +17,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.math.BigDecimal;
-
-import static org.hamcrest.MatcherAssert.assertThat;
 
 @SpringBootTest(classes = DemoApplication.class)
 @ActiveProfiles("test")
@@ -40,6 +39,7 @@ public class IntegrationServiceTest {
         category.setName("TestCategory");
         category = categoryRepository.save(category);
     }
+
     @Test
     public void createProduct_shouldSaveProduct() {
         ProductCreateRequest request = createRequest("Notebook", new BigDecimal(100000), category.getId());
@@ -55,4 +55,26 @@ public class IntegrationServiceTest {
         return request;
     }
 
+    @Test
+    public void findProductById_shouldReturnProduct() {
+        ProductCreateRequest request = createRequest("Notebook", new BigDecimal(100000), category.getId());
+        ProductResponse response = productService.createProduct(request);
+        ProductResponse getProduct = productService.findProductById(response.getId());
+        Assertions.assertAll(
+                () -> Assertions.assertNotNull(getProduct),
+                () -> Assertions.assertEquals(getProduct.getTitle(), request.getTitle())
+        );
+    }
+
+    @Test
+    public void deleteProduct_shouldDeleteProduct() {
+        ProductCreateRequest request = createRequest("Notebook", new BigDecimal(100000), category.getId());
+        ProductResponse response = productService.createProduct(request);
+        ProductResponse deleteProduct = productService.findProductById(response.getId());
+        productService.deleteProduct(deleteProduct.getId());
+        Assertions.assertAll(
+                () -> Assertions.assertThrows(ProductNotFound.class,
+                        () -> productService.findProductById(deleteProduct.getId()))
+        );
+    }
 }
