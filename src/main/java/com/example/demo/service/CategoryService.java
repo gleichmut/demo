@@ -9,7 +9,7 @@ import com.example.demo.repository.CategoryRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CategoryService {
@@ -36,10 +36,19 @@ public class CategoryService {
         return new CategoryResponse(savedCategory.getId(), savedCategory.getName());
     }
 
-    public List<Category> findAllCategories() {
-        return Optional.of(categoryRepository.findAll()) // Оборачиваем список в Optional
-                .filter(categories -> !categories.isEmpty()) // Если список не пуст - оставляем
-                .orElseThrow(() -> new CategoryNotFound("Список категорий пуст.")); // Если пуст - кидаем ошибку
+    public CategoryResponse findCategoryById(Long id) {
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new CategoryNotFound("Категория не найдена"));
+        return new CategoryResponse(category);
+    }
+    public List<CategoryResponse> findAllCategories() {
+        List<Category> categories = categoryRepository.findAll();
+        if (categories.isEmpty()) {
+            throw new CategoryNotFound("Список категорий пуст.");
+        }
+        return categories.stream()
+                .map(CategoryResponse::new)  // Преобразуем каждый продукт
+                .collect(Collectors.toList());
     }
 
     public CategoryResponse updateCategory(Long id, CategoryCreateRequest request) {
@@ -51,16 +60,8 @@ public class CategoryService {
     }
 
     public void deleteCategory(Long id) {
-        Category category = categoryRepository.findById(id)
+        categoryRepository.findById(id)
                 .orElseThrow(() -> new CategoryNotFound("Категория с id = " + id + " не найдена."));
-
-        // Если существует - удаляем
         categoryRepository.deleteById(id);
-    }
-
-    public CategoryResponse findCategoryById(Long id) {
-        Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new CategoryNotFound("Категория не найдена"));
-        return new CategoryResponse(category);  // ✅
     }
 }

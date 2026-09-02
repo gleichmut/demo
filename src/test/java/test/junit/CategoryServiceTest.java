@@ -71,7 +71,7 @@ public class CategoryServiceTest {
         Category category3 = new Category();
         category3.setId(3L);
         when(categoryRepository.findAll()).thenReturn(List.of(category1, category2, category3));
-        List<Category> categoriesAll = categoryService.findAllCategories();
+        List<CategoryResponse> categoriesAll = categoryService.findAllCategories();
         assertEquals(3, categoriesAll.size());
     }
 

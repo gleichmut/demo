@@ -42,6 +42,13 @@ public class ProductService {
         return new ProductResponse(saved.getId(), saved.getTitle(), saved.getPrice(), category.getId());
     }
 
+
+    public ProductResponse findProductById(Long id) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ProductNotFound("Продукт не найден"));
+        return new ProductResponse(product);  // Возвращаем DTO
+    }
+
     public List<ProductResponse> findAllProducts() {
         List<Product> products = productRepository.findAll();
         if (products.isEmpty()) {
@@ -83,12 +90,6 @@ public class ProductService {
 
         // Если код дошел до сюда, значит продукт есть -> удаляем
         productRepository.deleteById(id);
-    }
-
-    public ProductResponse findProductById(Long id) {
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new ProductNotFound("Продукт не найден"));
-        return new ProductResponse(product);  // Возвращаем DTO
     }
 
     @Transactional(timeout = 5)
