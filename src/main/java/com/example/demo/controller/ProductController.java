@@ -16,7 +16,7 @@ import java.util.List;
 @RequestMapping("api/product")
 @Tag(name = "ProductController", description = "Контроллер продукта.")
 public class ProductController {
-    public ProductService productService;
+    private final ProductService productService;
 
     public ProductController(ProductService productService) {
         this.productService = productService;
@@ -75,19 +75,4 @@ public class ProductController {
         long time = System.currentTimeMillis() - start;
         return ResponseEntity.ok("Все продукты удалены за " + time + " мс");
     }
-
-//    @PostMapping("/exception")
-//    @Operation(summary = "Ошибка", description = "Выбрасывание исключения")
-//    @ApiResponse(responseCode = "200", description = "Выброшено исключение")
-//    public ProductResponse throwException() {
-//        throw new RuntimeException("Ошибочка");
-//    }
-
-//    @PostMapping("/exception2")
-//    @Operation(summary = "Ошибка2", description = "Выбрасывание исключения")
-//    @ApiResponse(responseCode = "200", description = "Выброшено исключение")
-//    public ProductResponse throwException2() {
-//        throw new RuntimeException("Ошибочка2");
-//    }
-
 }
