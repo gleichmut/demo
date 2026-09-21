@@ -5,19 +5,24 @@ import com.example.demo.dto.CategoryResponse;
 import com.example.demo.entity.Category;
 import com.example.demo.exceptions.CategoryExists;
 import com.example.demo.exceptions.CategoryNotFound;
+import com.example.demo.mapper.CategoryMapper;
 import com.example.demo.repository.CategoryRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class CategoryService {
 
     private final CategoryRepository categoryRepository;
+    private final CategoryMapper categoryMapper;
 
-    public CategoryService(CategoryRepository categoryRepository) {
+    public CategoryService(CategoryRepository categoryRepository, CategoryMapper categoryMapper) {
         this.categoryRepository = categoryRepository;
+        this.categoryMapper = categoryMapper;
     }
 
     public CategoryResponse createCategory(CategoryCreateRequest request) {
@@ -28,35 +33,28 @@ public class CategoryService {
                     throw new CategoryExists("Категория: " + request.getName() + " уже существует.");
                 });
 
-        // Если код дошел до сюда, значит категории нет. Создаем и сохраняем.
-        Category category = new Category();
-        category.setName(request.getName());
-
-        Category savedCategory = categoryRepository.save(category);
-        return new CategoryResponse(savedCategory.getId(), savedCategory.getName());
+        Category category = categoryMapper.toEntity(request);
+        return categoryMapper.toResponse(categoryRepository.save(category));
     }
 
     public CategoryResponse findCategoryById(Long id) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new CategoryNotFound("Категория не найдена"));
-        return new CategoryResponse(category);
+        return categoryMapper.toResponse(category);
     }
     public List<CategoryResponse> findAllCategories() {
         List<Category> categories = categoryRepository.findAll();
         if (categories.isEmpty()) {
             throw new CategoryNotFound("Список категорий пуст.");
         }
-        return categories.stream()
-                .map(CategoryResponse::new)  // Преобразуем каждый продукт
-                .collect(Collectors.toList());
+        return categoryMapper.toResponseList(categories);
     }
 
     public CategoryResponse updateCategory(Long id, CategoryCreateRequest request) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new CategoryExists("Категория: " + request.getName() + " не найдена."));
         category.setName(request.getName());
-        Category updatedCategory = categoryRepository.save(category);
-        return new CategoryResponse(updatedCategory.getId(), updatedCategory.getName());
+        return categoryMapper.toResponse(categoryRepository.save(category));
     }
 
     public void deleteCategory(Long id) {
