@@ -6,6 +6,7 @@ import com.example.demo.entity.Category;
 import com.example.demo.entity.Product;
 import com.example.demo.exceptions.CategoryNotFound;
 import com.example.demo.exceptions.ProductNotFound;
+import com.example.demo.mapper.ProductMapper;
 import com.example.demo.repository.CategoryRepository;
 import com.example.demo.repository.ProductRepository;
 import org.springframework.stereotype.Service;
@@ -20,33 +21,31 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
+    private final ProductMapper productMapper;
 
-    public ProductService(ProductRepository productRepository, CategoryRepository categoryRepository) {
+    public ProductService(ProductRepository productRepository,
+                          CategoryRepository categoryRepository,
+                          ProductMapper productMapper) {
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
+        this.productMapper = productMapper;
     }
 
-    @Transactional
     public ProductResponse createProduct(ProductCreateRequest request) {
         // Находим категорию по ID
         Category category = categoryRepository.findById(request.getCategoryId())
                 .orElseThrow(() -> new CategoryNotFound("Категория с id = " + request.getCategoryId() + " не найдена."));
 
         // Создаем продукт
-        Product product = new Product();
-        product.setTitle(request.getTitle());
-        product.setPrice(request.getPrice());
-        product.setCategory(category); // Привязываем категорию
-
-        Product saved = productRepository.save(product);
-        return new ProductResponse(saved.getId(), saved.getTitle(), saved.getPrice(), category.getId());
+        Product product = productMapper.toEntity(request);
+        product.setCategory(category);
+        return productMapper.toResponse(productRepository.save(product));
     }
-
 
     public ProductResponse findProductById(Long id) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new ProductNotFound("Продукт не найден"));
-        return new ProductResponse(product);  // Возвращаем DTO
+                .orElseThrow(() -> new ProductNotFound("Продукт не найден."));
+        return productMapper.toResponse(product);
     }
 
     public List<ProductResponse> findAllProducts() {
@@ -54,33 +53,21 @@ public class ProductService {
         if (products.isEmpty()) {
             throw new ProductNotFound("Список продуктов пуст.");
         }
-        return products.stream()
-                .map(ProductResponse::new)  // Преобразуем каждый продукт
-                .collect(Collectors.toList());
+        return productMapper.toResponseList(products);
     }
 
     public ProductResponse updateProduct(Long id, ProductCreateRequest request) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ProductNotFound("Продукт с id = " + id + " не найден."));
 
-        // Обновляем поля
-        product.setTitle(request.getTitle());
-        product.setPrice(request.getPrice());
+        productMapper.updateEntity(request, product);
 
-        // Если нужно обновить категорию
         if (request.getCategoryId() != null) {
             Category category = categoryRepository.findById(request.getCategoryId())
-                    .orElseThrow(() -> new RuntimeException("Категория с id = " + request.getCategoryId() + " не найдена"));
+                    .orElseThrow(() -> new CategoryNotFound("Категория с id = " + request.getCategoryId() + " не найдена"));
             product.setCategory(category);
         }
-
-        Product updatedProduct = productRepository.save(product);
-        return new ProductResponse(
-                updatedProduct.getId(),
-                updatedProduct.getTitle(),
-                updatedProduct.getPrice(),
-                updatedProduct.getId()
-        );
+        return productMapper.toResponse(productRepository.save(product));
     }
 
     public void deleteProduct(Long id) {
@@ -97,3 +84,8 @@ public class ProductService {
         productRepository.deleteAllInBatch();
     }
 }
+
+// категорию в дто
+// лист в дто
+// и обратно из дто
+// тесты
