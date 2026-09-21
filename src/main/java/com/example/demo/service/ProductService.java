@@ -2,63 +2,90 @@ package com.example.demo.service;
 
 import com.example.demo.dto.ProductCreateRequest;
 import com.example.demo.dto.ProductResponse;
+import com.example.demo.entity.Category;
 import com.example.demo.entity.Product;
-import com.example.demo.exceptions.ProductExists;
+import com.example.demo.exceptions.CategoryNotFound;
 import com.example.demo.exceptions.ProductNotFound;
+import com.example.demo.mapper.ProductMapper;
+import com.example.demo.repository.CategoryRepository;
 import com.example.demo.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final CategoryRepository categoryRepository;
+    private final ProductMapper productMapper;
 
-    public ProductService(ProductRepository productRepository) {
+    public ProductService(ProductRepository productRepository,
+                          CategoryRepository categoryRepository,
+                          ProductMapper productMapper) {
         this.productRepository = productRepository;
+        this.categoryRepository = categoryRepository;
+        this.productMapper = productMapper;
     }
 
-    @Transactional
     public ProductResponse createProduct(ProductCreateRequest request) {
-        Product product = new Product();
-        product.setTitle(request.getTitle());
+        // Находим категорию по ID
+        Category category = categoryRepository.findById(request.getCategoryId())
+                .orElseThrow(() -> new CategoryNotFound("Категория с id = " + request.getCategoryId() + " не найдена."));
 
-        if (productRepository.existsByTitle(request.getTitle())) {
-            throw new ProductExists("Продукт: " + request.getTitle() + " уже существует.");
-        } else {
-            productRepository.save(product);
-        }
-        return new ProductResponse(product.getId(), product.getTitle());
+        // Создаем продукт
+        Product product = productMapper.toEntity(request);
+        product.setCategory(category);
+        return productMapper.toResponse(productRepository.save(product));
     }
 
-    public List<Product> getAllProducts() {
-        if (productRepository.findAll().isEmpty()) {
-            throw new ProductNotFound("Список  пуст или категории не найдены.");
+    public ProductResponse findProductById(Long id) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ProductNotFound("Продукт не найден."));
+        return productMapper.toResponse(product);
+    }
+
+    public List<ProductResponse> findAllProducts() {
+        List<Product> products = productRepository.findAll();
+        if (products.isEmpty()) {
+            throw new ProductNotFound("Список продуктов пуст.");
         }
-        return productRepository.findAll();
+        return productMapper.toResponseList(products);
     }
 
     public ProductResponse updateProduct(Long id, ProductCreateRequest request) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new ProductExists("Продукт: " + request.getTitle() + " не найден."));
-        product.setTitle(request.getTitle());
-        Product updatesProduct = productRepository.save(product);
-        return new ProductResponse(updatesProduct.getId(), updatesProduct.getTitle());
+                .orElseThrow(() -> new ProductNotFound("Продукт с id = " + id + " не найден."));
+
+        productMapper.updateEntity(request, product);
+
+        if (request.getCategoryId() != null) {
+            Category category = categoryRepository.findById(request.getCategoryId())
+                    .orElseThrow(() -> new CategoryNotFound("Категория с id = " + request.getCategoryId() + " не найдена"));
+            product.setCategory(category);
+        }
+        return productMapper.toResponse(productRepository.save(product));
     }
 
     public void deleteProduct(Long id) {
-        if (!productRepository.existsById(id)) {
-            throw new ProductExists("Продукт с id = " + id + " не найден.");
-        }
+        // Проверяем: если продукта НЕТ в базе -> кидаем ошибку
+        productRepository.findById(id)
+                .orElseThrow(() -> new ProductNotFound("Продукт с id = " + id + " не найден."));
+
+        // Если код дошел до сюда, значит продукт есть -> удаляем
         productRepository.deleteById(id);
+    }
+
+    @Transactional(timeout = 5)
+    public void deleteAllProducts() {
+        productRepository.deleteAllInBatch();
     }
 }
 
-
-
-// сделать для продуктов и категорий базовые rest запросы get put delete и добавить исключения свои
-// kafka, reddis, микро
-// почитать
-// вопросы 10 мин
+// категорию в дто
+// лист в дто
+// и обратно из дто
+// тесты
