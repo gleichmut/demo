@@ -1,16 +1,16 @@
 package com.example.demo.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 
 @Entity
 @AllArgsConstructor // создает полный конструктор
 @NoArgsConstructor
-@Data
+@Getter
+@Setter
+//@Data
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
